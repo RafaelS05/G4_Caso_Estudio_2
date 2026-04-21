@@ -1,49 +1,36 @@
 ﻿using CasoEstudio2.Models;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace CasoEstudio2.Controllers
 {
     public class CasasController : Controller
     {
-        private readonly string _connectionString;
 
+        private readonly IConfiguration _configuration;
         public CasasController(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _configuration = configuration;
         }
 
 
         // GET: /Casas/ConsultaCasas
+        [HttpGet]
         public IActionResult ConsultaCasas()
         {
-            List<CasasModel> lista = new List<CasasModel>();
+            using var context = new SqlConnection(
+                _configuration.GetValue<string>("ConnectionStrings:DefaultConnection"));
 
-            using (SqlConnection con = new SqlConnection(_connectionString))
-            {
-                SqlCommand cmd = new SqlCommand("SP_ConsultarCasas", con);
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            var casas = context.Query<CasasModel>("SP_ConsultarCasas",
+                commandType: CommandType.StoredProcedure);
 
-                con.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    lista.Add(new CasasModel
-                    {
-                        IdCasa = Convert.ToInt64(reader["IdCasa"]),
-                        DescripcionCasa = reader["DescripcionCasa"].ToString(),
-                        PrecioCasa = Convert.ToDecimal(reader["PrecioCasa"]),
-                        UsuarioAlquiler = reader["UsuarioAlquiler"] == DBNull.Value ? null : reader["UsuarioAlquiler"].ToString(),
-                        FechaAlquiler = reader["FechaAlquiler"] == DBNull.Value ? null : Convert.ToDateTime(reader["FechaAlquiler"])
-                    });
-                }
-            }
-
-            return View(lista);
+            return View(casas);
         }
 
         // GET: /Casas/AlquilerCasas
+        [HttpGet]
         public IActionResult AlquilerCasas()
         {
             ViewBag.Casas = ObtenerCasasDisponibles();
@@ -61,46 +48,29 @@ namespace CasoEstudio2.Controllers
                 return View(model);
             }
 
-            using (SqlConnection con = new SqlConnection(_connectionString))
-            {
-                SqlCommand cmd = new SqlCommand("SP_AlquilarCasa", con);
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            using var context = new SqlConnection(
+                _configuration.GetValue<string>("ConnectionStrings:DefaultConnection"));
 
-                cmd.Parameters.AddWithValue("@IdCasa", model.IdCasa);
-                cmd.Parameters.AddWithValue("@UsuarioAlquiler", model.UsuarioAlquiler);
-                cmd.Parameters.AddWithValue("@FechaAlquiler", DateTime.Now);
+            var parameters = new DynamicParameters();
 
-                con.Open();
-                cmd.ExecuteNonQuery();
-            }
+            parameters.Add("@IdCasa", model.IdCasa);
+            parameters.Add("@UsuarioAlquiler", model.UsuarioAlquiler);
+            parameters.Add("@FechaAlquiler", DateTime.Now);
+
+            context.Execute("SP_AlquilarCasa", parameters, commandType: CommandType.StoredProcedure);
 
             return RedirectToAction("ConsultaCasas");
         }
 
         private List<CasasModel> ObtenerCasasDisponibles()
         {
-            List<CasasModel> casas = new List<CasasModel>();
+            using var context = new SqlConnection(
+                _configuration.GetValue<string>("ConnectionStrings:DefaultConnection"));
 
-            using (SqlConnection con = new SqlConnection(_connectionString))
-            {
-                SqlCommand cmd = new SqlCommand("SP_ObtenerCasasDisponibles", con);
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
-
-                con.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    casas.Add(new CasasModel
-                    {
-                        IdCasa = Convert.ToInt64(reader["IdCasa"]),
-                        DescripcionCasa = reader["DescripcionCasa"].ToString(),
-                        PrecioCasa = Convert.ToDecimal(reader["PrecioCasa"])
-                    });
-                }
-            }
-
-            return casas;
+            var casasDisponibles = context.Query<CasasModel>("SP_ObtenerCasasDisponibles",
+                commandType: CommandType.StoredProcedure);
+            return ViewBag.Casas = casasDisponibles.ToList();
         }
+
     }
 }

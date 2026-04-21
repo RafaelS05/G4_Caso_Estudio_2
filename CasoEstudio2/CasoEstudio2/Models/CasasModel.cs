@@ -9,6 +9,6 @@ namespace CasoEstudio2.Models
         public decimal PrecioCasa { get; set; }
         public string? UsuarioAlquiler { get; set; }
         public DateTime? FechaAlquiler { get; set; }
-
+        public string? Estado { get; set; }
     }
 }

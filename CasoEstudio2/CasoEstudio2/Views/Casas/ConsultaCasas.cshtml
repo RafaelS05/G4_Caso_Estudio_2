@@ -1,0 +1,44 @@
+﻿@model IEnumerable<CasoEstudio2.Models.CasasModel>
+
+@{
+    ViewData["Title"] = "Consulta de Casas";
+}
+
+<h2>Consulta de Casas</h2>
+
+<table class="table table-bordered table-striped">
+    <thead class="table">
+        <tr>
+            <th>Descripción</th>
+            <th>Precio Mensual</th>
+            <th>Arrendatario</th>
+            <th>Estado</th>
+            <th>Fecha Alquiler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var casa in Model)
+        {
+            <tr>
+                <td>@casa.DescripcionCasa</td>
+                <td>₡@casa.PrecioCasa.ToString("N2")</td>
+                <td>@(casa.UsuarioAlquiler ?? "-")</td>
+                <td>
+                    @if (casa.Estado == "Disponible")
+                    {
+                        <span class="badge bg-success">Disponible</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Reservada</span>
+                    }
+                </td>
+                <td>
+                    @(casa.FechaAlquiler.HasValue
+                        ? casa.FechaAlquiler.Value.ToString("dd/MM/yyyy")
+                        : "-")
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
