@@ -4,59 +4,61 @@
     ViewData["Title"] = "Alquiler de Casas";
 }
 
-<h2>Alquiler de Casas</h2>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
 
-<div class="row">
-    <div class="col-md-5">
-        <form asp-action="AlquilerCasas" method="post">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-semibold">🏠 Alquiler de Casa</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="AlquilerCasas" method="post">
 
-            <div class="mb-3">
-                <label class="form-label">Casa</label>
-                <select id="ddlCasas" name="IdCasa" class="form-select" required>
-                    <option value="">-- Seleccione una casa --</option>
-                    @foreach (var casa in ViewBag.Casas as List<CasoEstudio2.Models.CasasModel>)
-                    {
-                        <option value="@casa.IdCasa"
-                                data-precio="@casa.PrecioCasa">
-                            @casa.DescripcionCasa
-                        </option>
-                    }
-                </select>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Casa</label>
+                            <select id="ddlCasas" name="IdCasa" class="form-select" required>
+                                <option value="">Seleccione una propiedad</option>
+                                @foreach (var casa in ViewBag.Casas as List<CasoEstudio2.Models.CasasModel>)
+                                {
+                                    <option value="@casa.IdCasa" data-precio="@casa.PrecioCasa">
+                                        @casa.DescripcionCasa
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Precio Mensual</label>
+                            <div class="input-group">
+                                <span class="input-group-text text-muted">₡</span>
+                                <input type="text" id="txtPrecio" name="PrecioCasa"
+                                       class="form-control" readonly placeholder="—" />
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Arrendatario</label>
+                            <input type="text" name="UsuarioAlquiler"
+                                   class="form-control"
+                                   value="@Model.UsuarioAlquiler"
+                                   placeholder="Nombre del arrendatario" />
+                            <span asp-validation-for="UsuarioAlquiler" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1">Confirmar alquiler</button>
+                            <a asp-action="ConsultaCasas" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+
+                    </form>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Precio Mensual</label>
-                <input type="text" id="txtPrecio" name="PrecioCasa"
-                       class="form-control" readonly />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Usuario Alquiler</label>
-                <input type="text" name="UsuarioAlquiler"
-                       class="form-control"
-                       value="@Model.UsuarioAlquiler"
-                       placeholder="Ingrese el nombre del usuario" />
-                <span asp-validation-for="UsuarioAlquiler" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Alquilar</button>
-            <a asp-action="ConsultaCasas" class="btn btn-secondary">Cancelar</a>
-
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        document.getElementById('ddlCasas').addEventListener('change', function () {
-            const selected = this.options[this.selectedIndex];
-            const precio = selected.getAttribute('data-precio');
-            document.getElementById('txtPrecio').value = precio
-                ? parseFloat(precio).toLocaleString('es-CR', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })
-                : '';
-        });
-    </script>
+    <script src="~/js/Alquiler.js" asp-append-version="true"></script>
 }

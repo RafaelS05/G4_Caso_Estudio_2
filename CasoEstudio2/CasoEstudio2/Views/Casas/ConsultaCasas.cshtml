@@ -4,41 +4,55 @@
     ViewData["Title"] = "Consulta de Casas";
 }
 
-<h2>Consulta de Casas</h2>
+<div class="container py-4">
 
-<table class="table table-bordered table-striped">
-    <thead class="table">
-        <tr>
-            <th>Descripción</th>
-            <th>Precio Mensual</th>
-            <th>Arrendatario</th>
-            <th>Estado</th>
-            <th>Fecha Alquiler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var casa in Model)
-        {
-            <tr>
-                <td>@casa.DescripcionCasa</td>
-                <td>₡@casa.PrecioCasa.ToString("N2")</td>
-                <td>@(casa.UsuarioAlquiler ?? "-")</td>
-                <td>
-                    @if (casa.Estado == "Disponible")
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-semibold mb-0">Consulta de Casas</h4>
+            <small class="text-muted">@Model.Count() propiedad(es) registrada(s)</small>
+        </div>
+        <a asp-action="AlquilerCasas" class="btn btn-primary btn-sm">+ Nuevo alquiler</a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="fw-semibold text-secondary small px-4 py-3">Descripción</th>
+                        <th class="fw-semibold text-secondary small py-3">Precio Mensual</th>
+                        <th class="fw-semibold text-secondary small py-3">Arrendatario</th>
+                        <th class="fw-semibold text-secondary small py-3">Estado</th>
+                        <th class="fw-semibold text-secondary small py-3">Fecha Alquiler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var casa in Model)
                     {
-                        <span class="badge bg-success">Disponible</span>
+                        <tr>
+                            <td class="px-4 fw-medium">@casa.DescripcionCasa</td>
+                            <td class="text-primary fw-semibold">₡@casa.PrecioCasa.ToString("N2")</td>
+                            <td class="text-muted">@(casa.UsuarioAlquiler ?? "—")</td>
+                            <td>
+                                @if (casa.Estado == "Disponible")
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Disponible</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Reservada</span>
+                                }
+                            </td>
+                            <td class="text-muted small">
+                                @(casa.FechaAlquiler.HasValue
+                                    ? casa.FechaAlquiler.Value.ToString("dd/MM/yyyy")
+                                    : "—")
+                            </td>
+                        </tr>
                     }
-                    else
-                    {
-                        <span class="badge bg-danger">Reservada</span>
-                    }
-                </td>
-                <td>
-                    @(casa.FechaAlquiler.HasValue
-                        ? casa.FechaAlquiler.Value.ToString("dd/MM/yyyy")
-                        : "-")
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
